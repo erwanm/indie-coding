@@ -6,5 +6,5 @@ Web scraper to collect the winner photos of the Photography StackExchange contes
 
 The photos are licensed under [Creative Commons Attribution-ShareAlike 4.0](CC BY-SA 4.0) with attribution required ([source](https://photo.meta.stackexchange.com/questions/7109/new-photo-contest)).
 
-The script stores each photos together with a text file containing the author, source and details.
+The script stores each photo together with a text file containing the author, source and details.
 
