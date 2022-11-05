@@ -1,5 +1,5 @@
 
-# indy-coding
+# indie-coding
 
 ## Collecting open-license images
 
