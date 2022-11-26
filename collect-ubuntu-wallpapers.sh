@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+
+
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <target dir>" 1>&2
     echo 1>&2
@@ -46,20 +49,26 @@ cat "$targetdir/wallpapers-packages.txt" | while read package; do
 	b=$(basename "$f")
 #	echo -n "    $b... " 1>&2
 	lineNo=$(grep -n "$b" "/usr/share/doc/$package/copyright" | cut -f 1 -d ':')
+	defaultFiles=
+	if [ -z "$lineNo" ]; then
+	    defaultFiles="TRUE"
+	    lineNo=$(grep -n 'Files: *' "/usr/share/doc/$package/copyright" | cut -f 1 -d ':')
+	fi
 	if [ ! -z "$lineNo" ]; then
 	    license=$(grep -n '^License:' "/usr/share/doc/$package/copyright" | cut -f 1,3 -d ':' | while read licenseLine; do
-	       licenseLineNo=$(echo "$licenseLine" | cut -f 1 -d ':')
-	       licenseThis=$(echo "$licenseLine" | cut -f 2  -d ':' | tr -d ' ')
-	       if [ $licenseLineNo -gt $lineNo ]; then
-		   echo "$licenseThis"
-	       fi
-	    done | head -n 1)
+	        licenseLineNo=$(echo "$licenseLine" | cut -f 1 -d ':')
+		licenseThis=$(echo "$licenseLine" | cut -f 2  -d ':' | tr -d ' ')
+		if [ $licenseLineNo -gt $lineNo ]; then
+		    echo "$licenseThis"
+		fi
+		      done | head -n 1)
+	fi
 #	    echo "$license" 1>&2
 	fi
 	if [ -z "$lineNo" ] || [ -z "$license" ]; then
-	    license="NOTFOUND"
-	    echo "Warning: license not found for $b in $package, not copying." 1>&2
-	    echo -e "$package\t$b" >> "$targetdir/licenses-not-found.txt"
+		license="NOTFOUND"
+		echo "Warning: license not found for $b in $package (not even default case), not copying." 1>&2
+		echo -e "$package\t$b" >> "$targetdir/licenses-not-found.txt"
 	else
 	    cp -a "$f" "$targetdir"
 	    echo -e "$license\n$package" > "$targetdir/$b.license"
