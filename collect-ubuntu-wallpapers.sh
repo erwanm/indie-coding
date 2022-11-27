@@ -45,14 +45,20 @@ cat "$targetdir/wallpapers-packages.txt" | while read package; do
 	   exit 11
 	fi
     fi
+    defaultLineNo=$(grep -n '^Files: \*$' "/usr/share/doc/$package/copyright" | cut -f 1 -d ':')
+    noDefault=""
+    if [ -z "$defaultLineNo" ]; then
+	noDefault="No"
+	echo "Warning: cannot find the default 'Files: *' for '$package'" 1>&2
+    fi
     dpkg -L "$package" | grep .jpg | while read f; do
 	b=$(basename "$f")
 #	echo -n "    $b... " 1>&2
 	lineNo=$(grep -n "$b" "/usr/share/doc/$package/copyright" | cut -f 1 -d ':')
-	defaultFiles=
-	if [ -z "$lineNo" ]; then
-	    defaultFiles="TRUE"
-	    lineNo=$(grep -n 'Files: *' "/usr/share/doc/$package/copyright" | cut -f 1 -d ':')
+	defaultLicense=""
+	if [ -z "$lineNo" ] && [ -z "$noDefault" ]; then
+	    defaultLicense=" (Ubuntu community contributors)"
+	    lineNo=$defaultLineNo
 	fi
 	if [ ! -z "$lineNo" ]; then
 	    license=$(grep -n '^License:' "/usr/share/doc/$package/copyright" | cut -f 1,3 -d ':' | while read licenseLine; do
@@ -61,17 +67,21 @@ cat "$targetdir/wallpapers-packages.txt" | while read package; do
 		if [ $licenseLineNo -gt $lineNo ]; then
 		    echo "$licenseThis"
 		fi
-		      done | head -n 1)
-	fi
+	    done | head -n 1)
 #	    echo "$license" 1>&2
 	fi
 	if [ -z "$lineNo" ] || [ -z "$license" ]; then
+	    if [ ! -z "$noDefault" ]; then
 		license="NOTFOUND"
-		echo "Warning: license not found for $b in $package (not even default case), not copying." 1>&2
-		echo -e "$package\t$b" >> "$targetdir/licenses-not-found.txt"
+		echo "Warning: license not found for $b in $package, not copying." 1>&2
+	        echo -e "$package\t$b" >> "$targetdir/licenses-not-found.txt"
+	    else
+		echo BUG
+		exit 14
+	    fi
 	else
 	    cp -a "$f" "$targetdir"
-	    echo -e "$license\n$package" > "$targetdir/$b.license"
+	    echo -e "${license}${defaultLicense}\n$package" > "$targetdir/$b.license"
 	    echo "$license"
 	fi
     done > "$targetdir/licenses.txt" 
