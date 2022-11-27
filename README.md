@@ -26,6 +26,6 @@ The code relies on information found [here](https://askubuntu.com/questions/1144
 - If the filename is not found in the copyright file, then the default license corresponding to the section containing the line `Files: *` in the copyright file (usuallly at the beginning) is assigned, and the attribution "Ubuntu community contributors" is added (471 images).
 - If even the default case is not found (format not standard, etc.), then the image is not copied but the filename and package are listed in `licenses-not-found.txt` (92 images).
 
-The number of cases indicated above is the one obtained in 2022 using Ubuntu 22.04.
+The number of cases indicated above is the one obtained in 2022 using Ubuntu 22.04. The case of default license is based on [the comment on this question](https://askubuntu.com/questions/1439412/ubuntu-wallpapers-the-copyright-file-doesnt-seem-to-always-contain-the-license).
 
 
